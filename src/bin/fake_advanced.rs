@@ -11,24 +11,18 @@ fn send_status_update(mut stream: TcpStream) {
         "Position": 1,
         "Busy": false
     });
-    loop {
-        match &stream.write_all(&(status_update.to_string() + "\n").into_bytes()) {
-            Ok(_) => {}
-            Err(_) => {
-                break;
-            }
-        }
+    while let Ok(_) = stream.write_all(&(status_update.to_string() + "\n").into_bytes()) {
         thread::sleep(Duration::from_millis(500));
     }
 }
 
 fn handle_cmd(stream: TcpStream) {
-    loop {
-        let reader = BufReader::new(&stream);
-        for line in reader.lines() {
-            print!("{}", line.unwrap());
+    let reader = BufReader::new(&stream);
+    for line in reader.lines() {
+        match line {
+            Ok(text) => println!("{text}"),
+            Err(_) => break,
         }
-        thread::sleep(Duration::from_millis(500));
     }
 }
 
