@@ -12,7 +12,12 @@ fn send_status_update(mut stream: TcpStream) {
         "Busy": false
     });
     loop {
-        let _ = &stream.write_all(&(status_update.to_string() + "\n").into_bytes());
+        match &stream.write_all(&(status_update.to_string() + "\n").into_bytes()) {
+            Ok(_) => {}
+            Err(_) => {
+                break;
+            }
+        }
         thread::sleep(Duration::from_millis(500));
     }
 }
@@ -23,6 +28,7 @@ fn handle_cmd(stream: TcpStream) {
         for line in reader.lines() {
             print!("{}", line.unwrap());
         }
+        thread::sleep(Duration::from_millis(500));
     }
 }
 
