@@ -11,7 +11,10 @@ fn send_status_update(mut stream: TcpStream) {
         "Position": 1,
         "Busy": false
     });
-    while let Ok(_) = stream.write_all(&(status_update.to_string() + "\n").into_bytes()) {
+    while stream
+        .write_all(&(status_update.to_string() + "\n").into_bytes())
+        .is_ok()
+    {
         thread::sleep(Duration::from_millis(500));
     }
 }
