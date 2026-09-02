@@ -1,15 +1,28 @@
 // this module mocks advanced status update functionality
-
-use std::io::{BufRead, BufReader};
+use serde_json::json;
+use std::io::{BufRead, BufReader, Write};
 use std::net::{TcpListener, TcpStream};
 use std::thread;
+use std::time::Duration;
 
-fn send_status_update(stream: TcpStream) {}
+fn send_status_update(mut stream: TcpStream) {
+    let status_update = json!({
+        "Status": "Active",
+        "Position": 1,
+        "Busy": false
+    });
+    loop {
+        let _ = &stream.write_all(&(status_update.to_string() + "\n").into_bytes());
+        thread::sleep(Duration::from_millis(500));
+    }
+}
 
 fn handle_cmd(stream: TcpStream) {
-    let reader = BufReader::new(stream);
-    for line in reader.lines() {
-        print!("{}", line.unwrap());
+    loop {
+        let reader = BufReader::new(&stream);
+        for line in reader.lines() {
+            print!("{}", line.unwrap());
+        }
     }
 }
 
