@@ -1,5 +1,4 @@
 use crossterm::event::{Event, KeyCode};
-use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
 use ratatui::widgets::Paragraph;
 use ratatui::{DefaultTerminal, Frame};
 
@@ -27,7 +26,5 @@ fn app(terminal: &mut DefaultTerminal) -> std::io::Result<()> {
 }
 
 fn main() {
-    let _ = enable_raw_mode();
     let _ = ratatui::run(app);
-    _ = disable_raw_mode();
 }
