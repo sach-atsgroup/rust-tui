@@ -20,8 +20,7 @@ fn app(terminal: &mut DefaultTerminal, buffer: Arc<Mutex<String>>) -> std::io::R
             Err(e) => println!("{e}"),
             Ok(event_ready) => {
                 if event_ready {
-                    let event_result = crossterm::event::read();
-                    match event_result {
+                    match crossterm::event::read() {
                         Err(e) => break Err(e),
                         Ok(Event::Key(key_event)) => {
                             if key_event.is_press() && key_event.code == KeyCode::Char('q') {
