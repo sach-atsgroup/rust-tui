@@ -1,18 +1,20 @@
 // this module mocks advanced status update functionality
-use serde_json::json;
 use std::io::{BufRead, BufReader, Write};
 use std::net::{TcpListener, TcpStream};
 use std::thread;
 use std::time::Duration;
 
+use advanced_tui::{PackMlMode, PackMlState, StatusUpdate};
+
 fn send_status_update(mut stream: TcpStream) {
-    let status_update = json!({
-        "Status": "Active",
-        "Position": 1,
-        "Busy": false
-    });
+    let status_update = StatusUpdate {
+        mode: PackMlMode::Production,
+        state: PackMlState::Aborted,
+        step: String::from("Initializing"),
+    };
+    let status_update_serialized = serde_json::to_string(&status_update).unwrap() + "\n";
     while stream
-        .write_all(&(status_update.to_string() + "\n").into_bytes())
+        .write_all(status_update_serialized.as_bytes())
         .is_ok()
     {
         thread::sleep(Duration::from_millis(500));
