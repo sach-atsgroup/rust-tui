@@ -1,7 +1,7 @@
 use advanced_tui::{CommandType, StatusUpdate};
 use core::fmt;
 use crossterm::event::{Event, KeyCode};
-use ratatui::layout::{Constraint, Direction, Layout,Alignment};
+use ratatui::layout::{Alignment, Constraint, Direction, Layout};
 use ratatui::widgets::{Block, List, Paragraph};
 use ratatui::{DefaultTerminal, Frame};
 use std::io::{BufRead, BufReader, Write};
@@ -35,10 +35,22 @@ fn render(frame: &mut Frame, data: &StatusUpdate, mode: InputMode) {
     let [list_area] = Layout::horizontal([Constraint::Length(max_item_len + 2)]).areas(list_area);
     let layout = Layout::default()
         .direction(Direction::Vertical)
-        .constraints(vec![Constraint::Percentage(90), Constraint::Percentage(10)])
+        .constraints(vec![
+            Constraint::Percentage(70),
+            Constraint::Percentage(10),
+            Constraint::Percentage(20),
+        ])
         .split(frame.area());
     frame.render_widget(List::new(items).block(Block::bordered()), list_area);
-    frame.render_widget(Paragraph::new(mode.to_string()).alignment(Alignment::Right), layout[1]);
+    frame.render_widget(
+        Paragraph::new(mode.to_string()).alignment(Alignment::Right),
+        layout[1],
+    );
+    let command_options = "[c] clear - [d] complete - [h] hold - [S] stop - [s] start";
+    frame.render_widget(
+        Paragraph::new(command_options).block(Block::bordered()),
+        layout[2],
+    );
 }
 
 fn handle_key_press(
@@ -51,8 +63,28 @@ fn handle_key_press(
         (InputMode::Normal, KeyCode::Char('c')) => {
             *mode = InputMode::SelectingCommand;
         }
+        (InputMode::SelectingCommand, KeyCode::Char('c')) => {
+            let _ = command_sender.send(CommandType::Clear);
+            *mode = InputMode::Normal;
+        }
+        (InputMode::SelectingCommand, KeyCode::Char('d')) => {
+            let _ = command_sender.send(CommandType::Complete);
+            *mode = InputMode::Normal;
+        }
+        (InputMode::SelectingCommand, KeyCode::Char('h')) => {
+            let _ = command_sender.send(CommandType::Hold);
+            *mode = InputMode::Normal;
+        }
+        (InputMode::SelectingCommand, KeyCode::Char('S')) => {
+            let _ = command_sender.send(CommandType::Stop);
+            *mode = InputMode::Normal;
+        }
         (InputMode::SelectingCommand, KeyCode::Char('s')) => {
             let _ = command_sender.send(CommandType::Start);
+            *mode = InputMode::Normal;
+        }
+        (InputMode::SelectingCommand, KeyCode::Char('u')) => {
+            let _ = command_sender.send(CommandType::Unhold);
             *mode = InputMode::Normal;
         }
         (InputMode::SelectingCommand, _) => {
