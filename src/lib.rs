@@ -41,3 +41,17 @@ pub struct StatusUpdate {
     pub state: PackMlState,
     pub step: String,
 }
+
+#[derive(Deserialize, Serialize, Debug)]
+#[serde(tag = "Command")]
+pub enum CommandType {
+    Start,
+    Abort,
+    Clear,
+    Hold,
+    Stop,
+    Suspend,
+    Unhold,
+    Unsuspend,
+    Complete,
+}
